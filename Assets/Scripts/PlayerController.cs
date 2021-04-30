@@ -46,14 +46,12 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetMouseButton(0))
         {
-            Debug.Log("SHOOT");
             timeToNextShot = 1f / roundsPerSecond;
-            var ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            RaycastHit hit;
-            if(Physics.Raycast(ray, out hit, gunRange, targetMask))
+            RaycastHit[] hits = Physics.RaycastAll(transform.position, transform.forward, gunRange, targetMask);
+
+            foreach(var hit in hits)
             {
-                Debug.Log(hit.transform.gameObject.name);
-                if(hit.transform.CompareTag("Enemy"))
+                if (hit.transform.CompareTag("Enemy"))
                 {
                     hit.transform.GetComponent<Enemy>().GetDamage(gunDamage);
                 }

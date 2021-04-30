@@ -8,6 +8,8 @@ public class Enemy : MonoBehaviour
     private NavMeshAgent agent;
     private Transform target;
     public float health;
+    public int pointsForHit;
+    public int pointsForKill;
 
     // Start is called before the first frame update
     void Start()
@@ -26,14 +28,15 @@ public class Enemy : MonoBehaviour
     {
         health -= damage;
         Debug.Log(health);
-        if(health <= 0)
-        {
+        if (health <= 0)
             Die();
-        }
+        else
+            GameManager.instance.IncreaseScore(pointsForHit);
     }
 
     private void Die()
     {
+        GameManager.instance.IncreaseScore(pointsForKill);
         Debug.Log("DEAD");
         gameObject.SetActive(false);
     }
