@@ -7,9 +7,11 @@ public class Enemy : MonoBehaviour
 {
     private NavMeshAgent agent;
     private Transform target;
+
     public float health;
     public int pointsForHit;
     public int pointsForKill;
+    public bool isPursuing = false;
 
     // Start is called before the first frame update
     void Start()
@@ -21,23 +23,20 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        agent.SetDestination(target.position);
+        if(isPursuing) agent.SetDestination(target.position);
     }
 
     public void GetDamage(float damage)
     {
         health -= damage;
-        Debug.Log(health);
-        if (health <= 0)
-            Die();
-        else
-            GameManager.instance.IncreaseScore(pointsForHit);
+        if (health <= 0) Die();
+        else GameManager.instance.IncreaseScore(pointsForHit);
     }
 
     private void Die()
     {
         GameManager.instance.IncreaseScore(pointsForKill);
-        Debug.Log("DEAD");
+        GameManager.instance.EnemyKilled();
         gameObject.SetActive(false);
     }
 }
