@@ -29,11 +29,12 @@ public class PlayerController : MonoBehaviour
     private float yVelocity;
     private float rotY;
 
-    public float gunRange;
-    public float gunDamage;
-    public float roundsPerSecond;
-    public LayerMask targetMask;
-    private float timeToNextShot = 0f;
+    private PlayerInventory weapons;
+
+    private void Awake()
+    {
+        weapons = GetComponent<PlayerInventory>();
+    }
 
     private void Start()
     {
@@ -43,32 +44,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        Shoot();
+        weapons.Shoot();
         MouseMovement();
         Movement();
-    }
-
-    private void Shoot()
-    {
-        if (timeToNextShot > 0f)
-        {
-            timeToNextShot -= Time.deltaTime;
-            return;
-        }
-
-        if(Input.GetMouseButton(0))
-        {
-            timeToNextShot = 1f / roundsPerSecond;
-            RaycastHit[] hits = Physics.RaycastAll(transform.position, transform.forward, gunRange, targetMask);
-
-            foreach(var hit in hits)
-            {
-                if (hit.transform.CompareTag("Enemy"))
-                {
-                    hit.transform.GetComponent<Enemy>().GetDamage(gunDamage);
-                }
-            }
-        }
     }
 
     private void MouseMovement()
