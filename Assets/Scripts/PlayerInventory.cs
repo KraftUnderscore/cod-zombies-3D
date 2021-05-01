@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -52,5 +53,29 @@ public class PlayerInventory : MonoBehaviour
         selected = gunObj.GetComponent<Gun>();
         isFirstSelected = switchToFirst;
         gunObj.SetActive(true);
+    }
+
+    public void AddItem(GameObject item)
+    {
+        if(secondSlot == null)
+        {
+            secondSlot = item;
+            SwitchGun(false);
+        }
+        else
+        {
+            if(isFirstSelected)
+            {
+                firstSlot.SetActive(false);
+                firstSlot = item;
+                SwitchGun(true);
+            }
+            else
+            {
+                secondSlot.SetActive(false);
+                secondSlot = item;
+                SwitchGun(false);
+            }
+        }
     }
 }

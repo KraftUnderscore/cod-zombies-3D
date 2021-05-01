@@ -30,6 +30,13 @@ public class PlayerController : MonoBehaviour
     private float rotY;
 
     private PlayerInventory weapons;
+    public PlayerInventory Weapons
+    {
+        get
+        {
+            return weapons;
+        }
+    }
 
     private void Awake()
     {
