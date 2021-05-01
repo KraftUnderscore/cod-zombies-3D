@@ -4,8 +4,14 @@ public class PlayerController : MonoBehaviour
 {
     public CharacterController controller;
     public float speed = 12f;
+    public float sprintSpeed;
+    public float sprintDuration;
     public float gravity = -9.81f;
     public float jumpHeight = 3f;
+
+    private float sprintRemaining;
+    private float currentSpeed;
+    private bool isSprinting = false;
 
     public Transform groundCheck;
     public float groundDistance = 0.4f;
@@ -28,6 +34,12 @@ public class PlayerController : MonoBehaviour
     public float roundsPerSecond;
     public LayerMask targetMask;
     private float timeToNextShot = 0f;
+
+    private void Start()
+    {
+        currentSpeed = speed;
+        sprintRemaining = sprintDuration;
+    }
 
     void Update()
     {
@@ -74,6 +86,8 @@ public class PlayerController : MonoBehaviour
 
     private void Movement()
     {
+        Sprint();
+
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
         if (isGrounded && velocity.y < 0)
@@ -86,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 move = transform.right * x + transform.forward * z;
 
-        controller.Move(move * speed * Time.deltaTime);
+        controller.Move(move * currentSpeed * Time.deltaTime);
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
@@ -95,5 +109,34 @@ public class PlayerController : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    private void Sprint()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && sprintRemaining >= sprintDuration)
+        {
+            isSprinting = true;
+            currentSpeed = sprintSpeed;
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            isSprinting = false;
+            currentSpeed = speed;
+        }
+
+        if (isSprinting)
+        {
+            if (sprintRemaining > 0f) sprintRemaining -= Time.deltaTime;
+            else
+            {
+                currentSpeed = speed;
+                isSprinting = false;
+            }
+        }
+        else
+        {
+            if (sprintRemaining < sprintDuration) sprintRemaining += Time.deltaTime;
+        }
     }
 }
