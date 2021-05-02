@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(UIManager))]
 public class GameManager : MonoBehaviour
@@ -31,16 +33,27 @@ public class GameManager : MonoBehaviour
         uIManager = GetComponent<UIManager>();
         spawner = FindObjectOfType<EnemySpawner>();
         playerInventory = FindObjectOfType<PlayerInventory>();
-        currentMaxEnemies = spawner.CurrentMaxEnemies;
+        currentMaxEnemies = spawner.MaxEnemies;
+        uIManager.UpdateRoundText(currentRound);
         spawner.SpawnRound();
     }
 
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            if (Cursor.lockState == CursorLockMode.Locked) Cursor.lockState = CursorLockMode.None;
+            else Cursor.lockState = CursorLockMode.Locked;
+        }
+
         if (item == null) return;
-        if(Input.GetKeyDown(KeyCode.E))
-        { 
-            if(item.isBarrier) item.item.SetActive(false);
+        if(Input.GetKeyDown(KeyCode.E) && item.price <= totalScore)
+        {
+            if (item.isBarrier)
+            {
+                item.item.SetActive(false);
+                spawner.IsPhaseTwo = true;
+            }
             else playerInventory.AddItem(item.item);
             item.gameObject.SetActive(false);
             IncreaseScore(-item.price);
@@ -61,6 +74,12 @@ public class GameManager : MonoBehaviour
             StartCoroutine(StartNextRound());
     }
 
+    public void UpdateHealth(float health)
+    {
+        if (health <= 0f) SceneManager.LoadScene(0);
+        else uIManager.UpdateHealthText(health);
+    }
+
     private ShopItem item;
 
     public void ShowShopItem(ShopItem shopItem)
@@ -77,10 +96,12 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartNextRound()
     {
-        currentRound++;
+        currentEnemiesKilled = 0;
         IncreaseScore(currentRound * scorePerRound);
+        currentRound++;
+        uIManager.UpdateRoundText(currentRound);
         yield return new WaitForSeconds(timeBetweenRounds);
-        currentMaxEnemies = spawner.CurrentMaxEnemies;
+        currentMaxEnemies = spawner.MaxEnemies;
         spawner.SpawnRound();
     }
 }

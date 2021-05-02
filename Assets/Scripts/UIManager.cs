@@ -1,12 +1,12 @@
 using UnityEngine;
 using TMPro;
-using System;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI itemText;
+    [SerializeField] private TextMeshProUGUI roundText;
 
     private void Start()
     {
@@ -18,14 +18,18 @@ public class UIManager : MonoBehaviour
         scoreText.text = score.ToString();
     }
 
-    public void UpdateHealthText(int health)
+    public void UpdateHealthText(float health)
     {
-        healthText.text = health.ToString();
+        healthText.text = health.ToString("000");
+    }
+    public void UpdateRoundText(int round)
+    {
+        roundText.text = round.ToString();
     }
 
     public void HighlightItem(ShopItem shopItem)
     {
-        itemText.text = "Buy " + shopItem.name + " for " + shopItem.price + "?";
+        itemText.text = "Press E to buy " + shopItem.name + " for " + shopItem.price + " points.";
         itemText.gameObject.SetActive(true);
     }
 

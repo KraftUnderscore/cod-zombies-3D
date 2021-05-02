@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour
     public float sprintDuration;
     public float gravity = -9.81f;
     public float jumpHeight = 3f;
+    public float health = 100f;
+    public float immortalityPeriod = 0.5f;
+    private float immortalityTimer;
 
     private float sprintRemaining;
     private float currentSpeed;
@@ -47,13 +50,23 @@ public class PlayerController : MonoBehaviour
     {
         currentSpeed = speed;
         sprintRemaining = sprintDuration;
+        GameManager.instance.UpdateHealth(health);
     }
 
     void Update()
     {
+        if(immortalityTimer > 0f) immortalityTimer -= Time.deltaTime;
         weapons.Shoot();
         MouseMovement();
         Movement();
+    }
+
+    public void GetDamage(float amount)
+    {
+        if (immortalityTimer > 0f) return;
+        immortalityTimer = immortalityPeriod;
+        health -= amount;
+        GameManager.instance.UpdateHealth(health);
     }
 
     private void MouseMovement()

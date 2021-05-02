@@ -11,17 +11,30 @@ public class EnemySpawner : MonoBehaviour
 
     private List<Transform> currentSpawnPoints;
     private bool isPhaseTwo = false;
+    public bool IsPhaseTwo
+    {
+        set
+        {
+            isPhaseTwo = value;
+        }
+    }
 
     private List<GameObject> enemies;
 
+    [SerializeField] private float startingSpeed;
+    [SerializeField] private float maxSpeed;
+    [SerializeField] private float speedIncrease;
+    [SerializeField] private float startingHealth;
+    [SerializeField] private float healthIncrease;
     [SerializeField] private float spawnPhaseDuration;
     [SerializeField] private float enemiesIncrease;
-    private int currentMaxEnemies = 10;
-    public int CurrentMaxEnemies
+    [SerializeField] private int maxEnemies;
+
+    public int MaxEnemies
     {
         get
         {
-            return currentMaxEnemies;
+            return maxEnemies;
         }
     }
 
@@ -33,17 +46,29 @@ public class EnemySpawner : MonoBehaviour
 
     public void SpawnRound()
     {
-        float spawnInterval = spawnPhaseDuration / currentMaxEnemies;
-        for(int i = 0; i < currentMaxEnemies; i++)
+        float spawnInterval = spawnPhaseDuration / maxEnemies;
+        for(int i = 0; i < maxEnemies; i++)
             StartCoroutine(SpawnEnemy(spawnInterval * (i + 1)));
-        currentMaxEnemies = (int)((1 + enemiesIncrease) * currentMaxEnemies);
     }
 
     private IEnumerator SpawnEnemy(float delay)
     {
         yield return new WaitForSeconds(delay);
-
+        spawned++;
         CreateEnemy(GetSpawnPoint());
+        IncreaseStats();
+    }
+
+    private int spawned = 0;
+
+    private void IncreaseStats()
+    {
+        if (spawned != maxEnemies) return;
+        maxEnemies = (int)((1 + enemiesIncrease) * maxEnemies);
+        startingHealth *= (1 + healthIncrease);
+        startingSpeed *= (1 + speedIncrease);
+        startingSpeed = Mathf.Min(startingSpeed, maxSpeed);
+        spawned = 0;
     }
 
     private void CreateEnemy(Transform spawnPoint)
@@ -51,16 +76,17 @@ public class EnemySpawner : MonoBehaviour
         GameObject enemyObj = GetEnemyObject();
         enemyObj.transform.position = spawnPoint.position;
         Enemy enemy = enemyObj.GetComponent<Enemy>();
-        enemy.health = 100f;
-        enemy.isPursuing = false;
+        enemy.health = startingHealth * 2f;
+        enemy.Speed = startingSpeed;
         enemyObj.SetActive(true);
+        enemy.SwitchAgent(true);
         StartCoroutine(AfterSpawnDelay(enemy));
     }
 
     private IEnumerator AfterSpawnDelay(Enemy enemy)
     {
         yield return new WaitForSeconds(Random.Range(afterSpawnDelayMin, afterSpawnDelayMax));
-        enemy.isPursuing = true;
+        if(enemy.gameObject.activeSelf) enemy.SwitchAgent(false);
     }
 
     private GameObject GetEnemyObject()
